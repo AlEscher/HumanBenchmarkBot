@@ -37,6 +37,7 @@ else:
     sys.exit(1)
     
 mouse.click(Button.left, 1)
+time.sleep(0.1)
 
 for x in range(0, limit):
     alreadySeen = False
