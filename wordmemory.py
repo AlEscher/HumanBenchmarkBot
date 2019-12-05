@@ -29,15 +29,14 @@ else:
 if (screenWidth == 1920 and screenHeight == 1080):
     # click to start the test
     mouse.position = (956, 618)
-    mouse.click(Button.left, 1)
-
 elif (screenWidth == 2560 and screenHeight == 1440):
     # click to start the test
-    print("Not yet supported")
-    sys.exit(1)
+    mouse.position = (1263, 615)
 else:
     print("Sorry, your screen resolution isn't supported.")
     sys.exit(1)
+    
+mouse.click(Button.left, 1)
 
 for x in range(0, limit):
     alreadySeen = False

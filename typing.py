@@ -18,8 +18,7 @@ if (screensize[0] == 1920 and screensize[1] == 1080):
     image = ImageGrab.grab(bbox=(588, 375, 1314, 573))
 
 elif (screensize[0] == 2560 and screensize[1] == 1440):
-    print("Not yet supported")
-    sys.exit(1)
+    image = ImageGrab.grab(bbox=(904, 377, 1634, 575))
 else:
     print("Sorry, your screen resolution isn't supported.")
     sys.exit(1)
@@ -29,7 +28,11 @@ if (image != None):
     # tesseract sometimes mistakenly reads "I" as "|"
     text = text.replace("\n", " ").replace("|", "I")
     # click on text feld to focus it
-    myMouse.position = (950, 430)
+    if (screensize[0] == 1920 and screensize[1] == 1080):
+        myMouse.position = (950, 430)
+    elif (screensize[0] == 2560 and screensize[1] == 1440):
+        myMouse.position = (1275, 478)
+    
     myMouse.click(pynput.mouse.Button.left, 1)
 
     print(text)
