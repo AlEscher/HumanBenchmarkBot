@@ -2,6 +2,7 @@ from PIL import ImageGrab
 from pynput.mouse import Button, Controller
 from ctypes import windll
 import keyboard
+import time
 
 mouse = Controller()
 print("Press Ctrl + C to terminate the program.")
@@ -28,3 +29,4 @@ if (supportedScreenRes):
         # different monitors have slightly different values for this green, 7002955 was the green value on my Laptop monitor
         if (abs(windll.gdi32.GetPixel(windll.user32.GetDC(0), 950, 460) - 7002955) <= 500000):
             mouse.click(Button.left, 1)
+            time.sleep(0.1)

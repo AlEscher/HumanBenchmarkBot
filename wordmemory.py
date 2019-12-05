@@ -13,22 +13,25 @@ alreadySeenWords = []
 limit = 20
 
 if (len(sys.argv) == 1):
-    print("No limit specified, using default of 20")
+    print("No limit specified, using default of %i" % (limit))
+    print("Usage example: python %s 30" % (sys.argv[0]))
 elif (sys.argv[1].isdigit()):
     limit = int(sys.argv[1])
 else:
     print("Invalid argument.")
+    print("Usage example: python %s 30" % (sys.argv[0]))
     sys.exit(1)
 
 
-# put the whole code in each if statement because bbox doesn't work well with variables
+# put the whole code in each if statement because bbox doesn't work well with variables...
 if (screenWidth == 1920 and screenHeight == 1080):
     for x in range(0, limit):
         alreadySeen = False
+        # read the current word from the screen
         image = ImageGrab.grab(bbox=(766, 396, 1166, 446))
         word = pytesseract.image_to_string(image, lang='eng')
         print(word)
-
+        # check if we already saw this word
         for i in range(0, len(alreadySeenWords)):
             if (word == alreadySeenWords[i]):
                 alreadySeen = True
