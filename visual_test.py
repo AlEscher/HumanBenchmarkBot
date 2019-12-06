@@ -37,7 +37,7 @@ for x in range(0, limit):
     elif (screensize[0] == 2560 and screensize[1] == 1440):
         image = ImageGrab.grab(bbox=(1072, 259, 1472, 659))
 
-    time.sleep(1)
+    time.sleep(1.1)
 
     for i in range(0, 400, 10):
         for j in range(0, 400, 10):

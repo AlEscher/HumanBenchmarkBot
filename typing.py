@@ -34,3 +34,5 @@ if (image != None):
     print(text)
 
     myKeyboard.type(text)
+else:
+    print("There was a problem while taking a screenshot")
