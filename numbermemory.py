@@ -33,7 +33,7 @@ for x in range(0, limit):
     elif (screensize[0] == 2560 and screensize[1] == 1440):
         image = ImageGrab.grab(bbox=(12, 260, 2446, 560))
 
-    if (image != None):
+    if (image is not None):
         #print(pytesseract.image_to_string(image, config='digits'))
         # image = image.convert("RGBA")
         # pixeldata = image.load()

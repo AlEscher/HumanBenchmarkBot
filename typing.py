@@ -24,7 +24,7 @@ else:
     print("Sorry, your screen resolution isn't supported.")
     sys.exit(1)
 
-if (image != None):
+if (image is not None):
     text = pytesseract.image_to_string(image, lang='eng')
     # tesseract sometimes mistakenly reads "I" as "|"
     text = text.replace("\n", " ").replace("|", "I")

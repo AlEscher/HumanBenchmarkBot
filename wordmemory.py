@@ -47,7 +47,7 @@ for x in range(0, limit):
     elif (screenWidth == 2560 and screenHeight == 1440):
         image = ImageGrab.grab(bbox=(973, 373, 1582, 473))
 
-    if (image == None):
+    if (image is None):
         sys.exit(-1)
 
     # imageName = "screen" + str(x) + ".jpg"
