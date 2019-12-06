@@ -1,6 +1,6 @@
 # HumanBenchmarkBot
 
-A bot meant to ace the tests presented at [HumanBenchmark](https://www.humanbenchmark.com/)
+A python bot meant to ace the tests presented at [HumanBenchmark](https://www.humanbenchmark.com/)
 
 ## Requirements
 
