@@ -7,7 +7,8 @@ A python bot meant to ace the tests presented at [HumanBenchmark](https://www.hu
 ### Tesseract OCR
 Most scripts use [Tesseract OCR](https://github.com/tesseract-ocr/tesseract) in order to recognize the text on the website. [Here](https://digi.bib.uni-mannheim.de/tesseract/tesseract-ocr-w64-setup-v4.1.0-bibtag19.exe) is an installer for Windows
 
-### Python libraries
+### Python
+I'm using Python 3.7.2
 
 Python libraries used:
 * pytesseract
