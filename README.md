@@ -22,3 +22,8 @@ Python libraries used:
 * Be sure to have your browser in (windowed) Fullscreen mode and to be at the top of the page, aswell as having the display size of your browser and OS set to default 100%
 * Run the according script (e.g. 'python reaction_test.py') from a shell (the shell-window shouldn't cover up the center of the test)
 * Achieve perfection
+
+## Previews
+
+### Typing Test
+![Typing Gif](https://github.com/AlEscher/HumanBenchmarkBot/blob/master/Previews/typing.gif)
