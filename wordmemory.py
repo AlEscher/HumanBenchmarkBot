@@ -59,13 +59,12 @@ for x in range(0, limit):
         if (word == alreadySeenWords[i]):
             alreadySeen = True
 
-    alreadySeenWords.append(word)
-
     if (screenWidth == 1920 and screenHeight == 1080):
         if (alreadySeen):
             mouse.position = (871, 502)
         else:
             mouse.position = (1033, 502)
+            alreadySeenWords.append(word)
     elif (screenWidth == 2560 and screenHeight == 1440):
         if (alreadySeen):
             mouse.position = (1193, 507)
