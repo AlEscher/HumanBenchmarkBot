@@ -27,3 +27,9 @@ Python libraries used:
 
 ### Typing Test
 ![Typing Gif](https://github.com/AlEscher/HumanBenchmarkBot/blob/master/Previews/typing.gif)
+### Reaction Test
+![Reaction Gif](https://github.com/AlEscher/HumanBenchmarkBot/blob/master/Previews/reaction_test.gif)
+### Verbal Memory Test
+![Verbal Memory Gif](https://github.com/AlEscher/HumanBenchmarkBot/blob/master/Previews/verbal_memory.gif)
+### Visual Memory Test
+![Visual Memory Gif](https://github.com/AlEscher/HumanBenchmarkBot/blob/master/Previews/visual_memory.gif)

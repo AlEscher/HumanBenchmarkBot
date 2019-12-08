@@ -69,6 +69,7 @@ for x in range(0, limit):
         if (alreadySeen):
             mouse.position = (1193, 507)
         else:
+            alreadySeenWords.append(word)
             mouse.position = (1357, 507)
 
     mouse.click(Button.left, 1)

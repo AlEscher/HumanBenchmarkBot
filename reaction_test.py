@@ -34,4 +34,4 @@ if (supportedScreenRes):
         if (abs(gdi.GetPixel(dc, 950, 460) - 7002955) <= 500000):
             mouse.click(Button.left, 1)
             time.sleep(0.1)
-            mouse.click(Button.left, 1)
+            #mouse.click(Button.left, 1)
