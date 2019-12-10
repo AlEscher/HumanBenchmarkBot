@@ -40,8 +40,8 @@ for x in range(0, limit):
 
     time.sleep(1.1)
 
-    for i in range(0, 400, 10):
-        for j in range(0, 400, 10):
+    for i in range(0, 400, 20):
+        for j in range(0, 400, 20):
             if image.getpixel((i, j)) == (255, 255, 255):
                 if (screensize[0] == 1920 and screensize[1] == 1080):
                     mouse.position = (i + 750, j + 259)
