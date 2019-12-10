@@ -29,9 +29,10 @@ time.sleep(0.2)
 
 for lvl in range(0, limit):
     if (screensize[0] == 1920 and screensize[1] == 1080):
+        print("Not yet supported")
         sys.exit(1)
     elif (screensize[0] == 2560 and screensize[1] == 1440):
-        image = ImageGrab.grab(bbox=(1200, 300, 1346, 520))
+        image = ImageGrab.grab(bbox=(1000, 300, 1546, 520))
 
     if (image is not None):
         #print(pytesseract.image_to_string(image, config='digits'))
@@ -41,7 +42,7 @@ for lvl in range(0, limit):
         for y in range(0, image.size[1]):
             for x in range(0, image.size[0]):
                 if pixeldata[x, y] != (255, 255, 255, 255):
-                    pixeldata[x, y] = (250, 250, 250, 255)
+                    pixeldata[x, y] = (255, 255, 255, 255)
                 else:
                     pixeldata[x, y] = (0, 0, 0, 255)
         
@@ -53,15 +54,20 @@ for lvl in range(0, limit):
             # psm for single word
             number = pytesseract.image_to_string(image, config='--psm 8')
         #try and filter out some consistent mistakes made by tesseract
-        number = number.replace("i", "1").replace("&", "6")
-        print(number)
-        image.show()
+        number = number.replace("i", "1").replace("&", "6").replace("t", "7").replace("a", "4")
+        print("Read: " + number)
+        #image.show()
         
-        if (not number.isdigit()):
+        if (not number.isdigit() or len(number) != lvl + 1):
             print("Tesseract OCR failed to recognize the number")
             sys.exit(1)
+            
+        delay = 2
         # click on text feld to focus it
-        time.sleep(1)
+        if (lvl >= 2):
+            delay += (lvl - 1) * 0.75
+        print("Waiting: " + str(delay))
+        time.sleep(delay)
         myMouse.click(pynput.mouse.Button.left, 1)
         myKeyboard.type(number)
         myKeyboard.press(pynput.keyboard.Key.enter)
