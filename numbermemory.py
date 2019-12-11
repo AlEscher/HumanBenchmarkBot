@@ -16,7 +16,9 @@ image = None
 limit = 5
 
 if (screensize[0] == 1920 and screensize[1] == 1080):
-    sys.exit(1)
+    myMouse.position = (953, 574)
+    myMouse.click(pynput.mouse.Button.left, 1)
+    myMouse.position = (953, 430)
 elif (screensize[0] == 2560 and screensize[1] == 1440):
     myMouse.position = (1273, 574)
     myMouse.click(pynput.mouse.Button.left, 1)
@@ -29,8 +31,7 @@ time.sleep(0.2)
 
 for lvl in range(0, limit):
     if (screensize[0] == 1920 and screensize[1] == 1080):
-        print("Not yet supported")
-        sys.exit(1)
+        image = ImageGrab.grab(bbox=(540, 340, 1344, 470))
     elif (screensize[0] == 2560 and screensize[1] == 1440):
         image = ImageGrab.grab(bbox=(1000, 300, 1546, 520))
 
@@ -38,14 +39,14 @@ for lvl in range(0, limit):
         #print(pytesseract.image_to_string(image, config='digits'))
         image = image.convert("RGBA")
         pixeldata = image.load()
-        #convert the blue background to white and number to black in order to help tesseract recognize the number
+        # convert the blue background to white and number to black in order to help tesseract recognize the number
         for y in range(0, image.size[1]):
             for x in range(0, image.size[0]):
                 if pixeldata[x, y] != (255, 255, 255, 255):
                     pixeldata[x, y] = (255, 255, 255, 255)
                 else:
                     pixeldata[x, y] = (0, 0, 0, 255)
-        
+
         number = ""
         if (lvl == 0):
             # supposedly better psm (page segmentation mode) for single digits
@@ -53,15 +54,17 @@ for lvl in range(0, limit):
         else:
             # psm for single word
             number = pytesseract.image_to_string(image, config='--psm 8')
-        #try and filter out some consistent mistakes made by tesseract
-        number = number.replace("i", "1").replace("&", "6").replace("t", "7").replace("a", "4")
-        print("Read: " + number)
-        #image.show()
-        
+        # try and filter out some consistent mistakes made by tesseract
+        print("Tesseract read: " + number)
+        number = number.replace("i", "1").replace(
+            "&", "6").replace("t", "7").replace("a", "4")
+        print("Writing " + number)
+        # image.show()
+
         if (not number.isdigit() or len(number) != lvl + 1):
             print("Tesseract OCR failed to recognize the number")
             sys.exit(1)
-            
+
         delay = 2
         # click on text feld to focus it
         if (lvl >= 2):
