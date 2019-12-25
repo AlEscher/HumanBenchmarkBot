@@ -60,7 +60,8 @@ for lvl in range(0, limit):
             number = number.replace("i", "1").replace(
                 "&", "6").replace("t", "7").replace("a", "4").replace("G", "6")
 
-        # image.show()
+        # if (lvl >= 10):
+        #     image.show()
 
         if (not number.isdigit() or len(number) != lvl + 1):
             print("Tesseract OCR failed to recognize the number")

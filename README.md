@@ -10,15 +10,27 @@ Most scripts use [Tesseract OCR](https://github.com/tesseract-ocr/tesseract) in 
 ### Python
 I'm using Python 3.7.2
 
-Python libraries used:
+Python libraries used for the single scripts:
 * pytesseract
 * pywin32api
 * pynput
 * pillow
 
+Python libraries used for HumanBenchmarkBot.py:
+* selenium
+* pynput
+
 ## How to use
 
+### How to use the Bot
+* Clone this repository or just download [HumanBenchmarkBot.py](https://github.com/AlEscher/HumanBenchmarkBot/blob/master/HumanBenchmarkBot.py)
+* 'pip install' the needed libraries
+* You will need a Chrome Browser and the according [chromedriver](https://sites.google.com/a/chromium.org/chromedriver/) for your Browser version
+* That's it, do HumanBenchmarkBot.py -help for further instructions
+
+### How to use a single script
 * Clone this repository or download a single script you want to use
+* Install Tesseract OCR and 'pip install' the needed libraries
 * Open [HumanBenchmark](https://www.humanbenchmark.com/) in your favourite browser and select one of the supported tests
 * Be sure to have your browser in (windowed) Fullscreen mode and to be at the top of the page, aswell as having the display size of your browser and OS set to default 100%
 * Run the according script (e.g. 'python reaction_test.py') from a shell (the shell-window shouldn't cover up the center of the test)
