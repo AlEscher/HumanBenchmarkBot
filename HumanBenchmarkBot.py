@@ -13,7 +13,8 @@ import time
 
 def printHelp():
     """Prints a help for this script"""
-    print("Usage example: python %s number_memory" % (sys.argv[0]))
+    print("Usage example: python %s typing" % (sys.argv[0]))
+    print("Set an optional limit: %s verbal_memory -limit 100" % sys.argv[0])
     print("To print this help: python %s -help" % sys.argv[0])
     print("Available tests:\n- number_memory\n- reaction_time\n- verbal_memory\n- visual_memory\n- hearing\n- typing")
 
@@ -24,13 +25,14 @@ def handleNumberMemory():
     startButton = driver.find_element_by_class_name("hero-button")
     startButton.click()
 
-    while (True):
+    for i in range(limit):
         # wait for the number to be shown in order to save it
         number = driver.find_element_by_class_name("big-number").text
         print(number)
 
         # get the input field, type in the number and press RETURN
         inputFieldPresent = EC.presence_of_element_located(
+            # look for a div element of class "test-group" which contains an input element with type "text"
             (By.XPATH, "//div[@class='test-group']//input[@type='text']"))
         try:
             # wait for the input field to become available
@@ -43,6 +45,7 @@ def handleNumberMemory():
         inputField.send_keys(Keys.RETURN)
         nextButton = driver.find_element_by_class_name("hero-button")
         nextButton.click()
+        # the time the number is displayed increases for each digit added
         wait += 1
 
 
@@ -63,7 +66,7 @@ def handleVerbalMemory():
     alreadySeen = []
 
     # keep collecting words and checking if we already saw them
-    while True:
+    for i in range(limit):
         currentWord = driver.find_element_by_class_name("word").text
         if (alreadySeen.count(currentWord) > 0):
             driver.find_elements_by_class_name("hero-button")[0].click()
@@ -77,7 +80,7 @@ def handleVisualMemory():
     startButton = driver.find_element_by_class_name("hero-button")
     startButton.click()
     myMouse = pynput.mouse.Controller()
-    while True:
+    for i in range(limit):
         whiteSquaresPresent = EC.presence_of_all_elements_located(
             (By.CSS_SELECTOR, ".square.active"))
         try:
@@ -126,10 +129,14 @@ if (len(sys.argv) == 1):
     print("No test specified.")
     printHelp()
     sys.exit(0)
-elif (len(sys.argv) == 2 and sys.argv[1] == "-help"):
+elif (len(sys.argv) >= 2 and sys.argv[1] == "-help"):
     printHelp()
     sys.exit(0)
 else:
+    # default limit, can be changed with launch option -limit
+    limit = 40
+    if (len(sys.argv) == 4 and sys.argv[2] == "-limit"):
+        limit = int(sys.argv[3])
     options = webdriver.ChromeOptions()
     # specify your Chrome browser location
     options.binary_location = "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe"
