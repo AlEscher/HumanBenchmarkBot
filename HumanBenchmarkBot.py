@@ -11,15 +11,72 @@ import time
 # For the whole bot we access the elements on the webpage, making the use of Python redundant, but wth...
 
 
-def printHelp():
+def handleUserInput(userInput, limit):
+    """Handles all user input"""
+    if (userInput == "help"):
+        printHelp(False)
+        handleUserInput(input("What next? (Type help for help)\n"), limit)
+    elif (len(userInput.split()) == 2 and userInput.split()[0] == "-limit"):
+        limitInput = userInput.split()
+        if (limitInput[1].isdigit()):
+            limit = int(limitInput[1])
+        else:
+            print("Invalid -limit argument:", limitInput[1])
+        handleUserInput(input("What next? (Type help for help)\n"), limit)
+    elif (userInput == "quit"):
+        print("Goodbye.")
+        sys.exit(0)
+    else:
+        driver.get("https://www.humanbenchmark.com/")
+        # 0 -> number_memory 1-> reaction_time 2-> verbal_memory 3-> visual_memory 4-> hearing -> 5-> typing
+        testButtons = driver.find_elements_by_class_name("card")
+
+        if (userInput == "number_memory"):
+            testButtons[0].click()
+            handleNumberMemory(limit)
+            handleUserInput(input("What next? (Type help for help)\n"), limit)
+        elif(userInput == "reaction_time"):
+            testButtons[1].click()
+            handleUserInput(input("What next? (Type help for help)\n"), limit)
+        elif (userInput == "verbal_memory"):
+            testButtons[2].click()
+            handleVerbalMemory(limit)
+            handleUserInput(input("What next? (Type help for help)\n"), limit)
+        elif (userInput == "visual_memory"):
+            testButtons[3].click()
+            handleVisualMemory(limit)
+            handleUserInput(input("What next? (Type help for help)\n"), limit)
+        elif (userInput == "hearing"):
+            testButtons[4].click()
+            handleHearing()
+            handleUserInput(input("What next? (Type help for help)\n"), limit)
+        elif (userInput == "typing"):
+            testButtons[5].click()
+            handleTyping()
+            handleUserInput(input("What next? (Type help for help)\n"), limit)
+        else:
+            print("Unknown test: " + userInput)
+            driver.close()
+            sys.exit(-1)
+
+
+def printHelp(isLaunchArgument):
     """Prints a help for this script"""
-    print("Usage example: python %s typing" % (sys.argv[0]))
-    print("Set an optional limit: %s verbal_memory -limit 100" % sys.argv[0])
-    print("To print this help: python %s -help" % sys.argv[0])
-    print("Available tests:\n- number_memory\n- reaction_time\n- verbal_memory\n- visual_memory\n- hearing\n- typing")
+    if (isLaunchArgument == True):
+        print("Usage example: python %s typing" % (sys.argv[0]))
+        print("Set an optional limit: %s verbal_memory -limit 100" %
+              sys.argv[0])
+        print("To print this help: python %s -help" % sys.argv[0])
+        print("Available tests:\n- number_memory\n- reaction_time\n- verbal_memory\n- visual_memory\n- hearing\n- typing")
+    else:
+        print("Write the test you want to start next")
+        print("Type help to print this help")
+        print("You can set a new limit with: -limit 100")
+        print("To exit the program, type quit")
+        print("Available tests:\n- number_memory\n- reaction_time\n- verbal_memory\n- visual_memory\n- hearing\n- typing")
 
 
-def handleNumberMemory():
+def handleNumberMemory(limit):
     wait = 3
     # get and click the start button
     startButton = driver.find_element_by_class_name("hero-button")
@@ -49,7 +106,7 @@ def handleNumberMemory():
         wait += 1
 
 
-def handleVerbalMemory():
+def handleVerbalMemory(limit):
     # get and click the start button
     # don't look for the start button too early...
     time.sleep(1)
@@ -75,7 +132,7 @@ def handleVerbalMemory():
             driver.find_elements_by_class_name("hero-button")[1].click()
 
 
-def handleVisualMemory():
+def handleVisualMemory(limit):
     time.sleep(0.5)
     startButton = driver.find_element_by_class_name("hero-button")
     startButton.click()
@@ -130,10 +187,10 @@ def handleTyping():
 
 if (len(sys.argv) == 1):
     print("No test specified.")
-    printHelp()
+    printHelp(True)
     sys.exit(0)
 elif (len(sys.argv) >= 2 and sys.argv[1] == "-help"):
-    printHelp()
+    printHelp(True)
     sys.exit(0)
 else:
     # default limit, can be changed with launch option -limit
@@ -153,31 +210,5 @@ else:
     chrome_driver_binary = "C:\\Program Files (x86)\\Google\\chromedriver_win32\\chromedriver.exe"
     driver = webdriver.Chrome(
         executable_path=chrome_driver_binary, options=options)
-
-    driver.get("https://www.humanbenchmark.com/")
-
-    # 0 -> number_memory 1-> reaction_time 2-> verbal_memory 3-> visual_memory 4-> hearing -> 5-> typing
-    testButtons = driver.find_elements_by_class_name("card")
     print("Starting test: " + sys.argv[1])
-
-    if (sys.argv[1] == "number_memory"):
-        testButtons[0].click()
-        handleNumberMemory()
-    elif(sys.argv[1] == "reaction_time"):
-        testButtons[1].click()
-    elif (sys.argv[1] == "verbal_memory"):
-        testButtons[2].click()
-        handleVerbalMemory()
-    elif (sys.argv[1] == "visual_memory"):
-        testButtons[3].click()
-        handleVisualMemory()
-    elif (sys.argv[1] == "hearing"):
-        testButtons[4].click()
-        handleHearing()
-    elif (sys.argv[1] == "typing"):
-        testButtons[5].click()
-        handleTyping()
-    else:
-        print("Unknown test: " + sys.argv[1])
-        driver.close()
-        sys.exit(-1)
+    handleUserInput(sys.argv[1], limit)
