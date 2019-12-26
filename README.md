@@ -23,7 +23,7 @@ Python libraries used for HumanBenchmarkBot.py:
 
 ## How to use
 
-### How to use the Bot
+### How to use the Bot (Recommended)
 * Clone this repository or just download [HumanBenchmarkBot.py](https://github.com/AlEscher/HumanBenchmarkBot/blob/master/HumanBenchmarkBot.py)
 * `pip install` the needed libraries
 * You will need a Chrome Browser and the according [chromedriver](https://sites.google.com/a/chromium.org/chromedriver/) for your Browser version
