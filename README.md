@@ -13,7 +13,7 @@ I'm using Python 3.7.2
 
 Python libraries used for the single scripts:
 * pytesseract
-* pywin32api
+* pywin32
 * pynput
 * pillow
 
