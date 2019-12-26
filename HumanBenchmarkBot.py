@@ -112,15 +112,18 @@ def handleTyping():
     textbox = driver.find_element_by_class_name("letters")
     myKeyboard = pynput.keyboard.Controller()
     textbox.click()
-    text = ""
-    textElements = (driver.find_elements_by_class_name("incomplete"))
+    textList = []
+    textElements = driver.find_elements_by_class_name("incomplete")
     print("Starting to build string...")
     # join all other letters to create a string to type
-    for i in range(len(textElements)):
-        if (textElements[i].text == ""):
-            text += " "
+    # I have no idea why this takes so long
+    for textElement in textElements:
+        currentChar = textElement.text
+        if (currentChar == ""):
+            textList.append(" ")
         else:
-            text += textElements[i].text
+            textList.append(currentChar)
+    text = "".join(textList)
     print("Typing...")
     myKeyboard.type(text)
 
@@ -136,11 +139,16 @@ else:
     # default limit, can be changed with launch option -limit
     limit = 40
     if (len(sys.argv) == 4 and sys.argv[2] == "-limit"):
-        limit = int(sys.argv[3])
+        if (sys.argv[3].isdigit()):
+            limit = int(sys.argv[3])
+        else:
+            print("Invalid -limit argument")
+            sys.exit(-1)
     options = webdriver.ChromeOptions()
     # specify your Chrome browser location
     options.binary_location = "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe"
     options.add_argument("--start-maximized")
+    options.add_argument("--disable-infobars")
     # specify your chromedriver path
     chrome_driver_binary = "C:\\Program Files (x86)\\Google\\chromedriver_win32\\chromedriver.exe"
     driver = webdriver.Chrome(
