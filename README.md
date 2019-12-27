@@ -4,10 +4,6 @@ A python bot meant to ace the tests presented at [HumanBenchmark](https://www.hu
 
 ## Requirements
 
-### Tesseract OCR
-Most single scripts use [Tesseract OCR](https://github.com/tesseract-ocr/tesseract) in order to recognize the text on the website. [Here](https://digi.bib.uni-mannheim.de/tesseract/tesseract-ocr-w64-setup-v4.1.0-bibtag19.exe) is an installer for Windows.
-If you use the BenchmarkBot, you will only need Chrome and a chromedriver
-
 ### Python
 I'm using Python 3.7.2 on Windows 10
 
@@ -21,6 +17,10 @@ Python libraries used for HumanBenchmarkBot.py:
 * selenium
 * pynput
 * pywin32
+
+### Tesseract OCR
+Most **single scripts** use [Tesseract OCR](https://github.com/tesseract-ocr/tesseract) in order to recognize the text on the website. [Here](https://digi.bib.uni-mannheim.de/tesseract/tesseract-ocr-w64-setup-v4.1.0-bibtag19.exe) is an installer for Windows.
+If you use the BenchmarkBot, you will only need Chrome and a chromedriver
 
 ## How to use
 
