@@ -181,7 +181,7 @@ def handleVisualMemory(limit):
         # iterate through all white squares and click on their location
         for square in activeSquares:
             coordinates = (square.rect["x"] + (square.rect["width"] / 2),
-                           square.rect["y"] + (square.rect["height"] / 2) + 100)
+                           square.rect["y"] + (square.rect["height"] / 2) + 120)
             myMouse.position = coordinates
             myMouse.click(pynput.mouse.Button.left, 1)
         time.sleep(1)
