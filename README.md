@@ -9,7 +9,7 @@ Most single scripts use [Tesseract OCR](https://github.com/tesseract-ocr/tessera
 If you use the BenchmarkBot, you will only need Chrome and a chromedriver
 
 ### Python
-I'm using Python 3.7.2
+I'm using Python 3.7.2 on Windows 10
 
 Python libraries used for the single scripts:
 * pytesseract
