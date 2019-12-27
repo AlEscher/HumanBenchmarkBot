@@ -4,6 +4,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
+from ctypes import windll
 import pynput
 import sys
 import time
@@ -37,6 +38,7 @@ def handleUserInput(userInput, limit):
             handleUserInput(input("What next? (Type help for help)\n"), limit)
         elif(userInput == "reaction_time"):
             testButtons[1].click()
+            handleReactionTime(limit)
             handleUserInput(input("What next? (Type help for help)\n"), limit)
         elif (userInput == "verbal_memory"):
             testButtons[2].click()
@@ -106,6 +108,35 @@ def handleNumberMemory(limit):
         wait += 1
 
 
+def handleReactionTime(limit):
+    myMouse = pynput.mouse.Controller()
+    dc = windll.user32.GetDC(0)
+    gdi = windll.gdi32
+    window = driver.find_element_by_css_selector(
+        ".test-standard-inner.inner.anim-slide-fade-in")
+    x = window.rect["x"] + (window.rect["width"] // 2)
+    y = window.rect["y"] + (window.rect["height"] // 2) + 300
+    myMouse.position = (x, y)
+    # need integers for gdi.GetPixel(x, y)
+    x = int(round(x))
+    y = int(round(y))
+    myMouse.click(pynput.mouse.Button.left, 1)
+    num = 0
+    while True:
+        # different monitors have slightly different values for this green, 7002955 was the green value on my Laptop monitor
+        # From what I have found out windll is the fastest way to check a single pixel value (< 10ms)
+        if (abs(gdi.GetPixel(dc, x, y) - 7002955) <= 500000 and num < limit):
+            myMouse.click(pynput.mouse.Button.left, 1)
+            num = num + 1
+            print(num)
+            time.sleep(0.1)
+            # don't click if this was the last run
+            if (num != limit):
+                myMouse.click(pynput.mouse.Button.left, 1)
+            else:
+                break
+
+
 def handleVerbalMemory(limit):
     # get and click the start button
     # don't look for the start button too early...
@@ -167,8 +198,11 @@ def handleHearing():
 def handleTyping():
     time.sleep(0.5)
     textbox = driver.find_element_by_class_name("letters")
-    myKeyboard = pynput.keyboard.Controller()
     textbox.click()
+    myKeyboard = pynput.keyboard.Controller()
+    myMouse = pynput.mouse.Controller()
+    coordinates = (textbox.rect["x"] + (textbox.rect["width"] / 2),
+                   textbox.rect["y"] + (textbox.rect["height"] / 2) + 100)
     textList = []
     textElements = driver.find_elements_by_class_name("incomplete")
     print("Starting to build string...")
@@ -182,6 +216,11 @@ def handleTyping():
             textList.append(currentChar)
     text = "".join(textList)
     print("Typing...")
+    # pynput's type is more than 10 x faster than
+    # textbox.send_keys(text)
+    # but the textbox needs to be in focus for pynput
+    myMouse.position = coordinates
+    myMouse.click(pynput.mouse.Button.left, 1)
     myKeyboard.type(text)
 
 
