@@ -35,31 +35,26 @@ def handleUserInput(userInput, limit):
         if (userInput == "number_memory"):
             testButtons[0].click()
             handleNumberMemory(limit)
-            handleUserInput(input("What next? (Type help for help)\n"), limit)
         elif(userInput == "reaction_time"):
             testButtons[1].click()
             handleReactionTime(limit)
-            handleUserInput(input("What next? (Type help for help)\n"), limit)
         elif (userInput == "verbal_memory"):
             testButtons[2].click()
             handleVerbalMemory(limit)
-            handleUserInput(input("What next? (Type help for help)\n"), limit)
         elif (userInput == "visual_memory"):
             testButtons[3].click()
             handleVisualMemory(limit)
-            handleUserInput(input("What next? (Type help for help)\n"), limit)
         elif (userInput == "hearing"):
             testButtons[4].click()
             handleHearing()
-            handleUserInput(input("What next? (Type help for help)\n"), limit)
         elif (userInput == "typing"):
             testButtons[5].click()
             handleTyping()
-            handleUserInput(input("What next? (Type help for help)\n"), limit)
         else:
             print("Unknown test: " + userInput)
             driver.close()
             sys.exit(-1)
+        handleUserInput(input("What next? (Type help for help)\n"), limit)
 
 
 def printHelp(isLaunchArgument):
@@ -115,7 +110,7 @@ def handleReactionTime(limit):
     window = driver.find_element_by_css_selector(
         ".test-standard-inner.inner.anim-slide-fade-in")
     x = window.rect["x"] + (window.rect["width"] // 2)
-    y = window.rect["y"] + (window.rect["height"] // 2) + 300
+    y = window.rect["y"] + (window.rect["height"] // 2) + 200
     myMouse.position = (x, y)
     # need integers for gdi.GetPixel(x, y)
     x = int(round(x))
@@ -181,7 +176,7 @@ def handleVisualMemory(limit):
         # iterate through all white squares and click on their location
         for square in activeSquares:
             coordinates = (square.rect["x"] + (square.rect["width"] / 2),
-                           square.rect["y"] + (square.rect["height"] / 2) + 120)
+                           square.rect["y"] + (square.rect["height"] / 2) + 80)
             myMouse.position = coordinates
             myMouse.click(pynput.mouse.Button.left, 1)
         time.sleep(1)
@@ -202,7 +197,7 @@ def handleTyping():
     myKeyboard = pynput.keyboard.Controller()
     myMouse = pynput.mouse.Controller()
     coordinates = (textbox.rect["x"] + (textbox.rect["width"] / 2),
-                   textbox.rect["y"] + (textbox.rect["height"] / 2) + 100)
+                   textbox.rect["y"] + (textbox.rect["height"] / 2) + 80)
     textList = []
     textElements = driver.find_elements_by_class_name("incomplete")
     print("Starting to build string...")
@@ -244,7 +239,12 @@ else:
     # specify your Chrome browser location
     options.binary_location = "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe"
     options.add_argument("--start-maximized")
-    options.add_argument("--disable-infobars")
+    # 'excludeSwitches' and 'enable-automation' disable the header "this browser is controlled by automated software"
+    # this makes a different for tests that rely on pixel coordinates, such as visual_memory
+    # '--load-extension' disables the pop-up warning to disable extensions in developer mode, which can mess with
+    # things such as 'send_keys()'
+    options.add_experimental_option(
+        "excludeSwitches", ['enable-automation', '--load-extension'])
     # specify your chromedriver path
     chrome_driver_binary = "C:\\Program Files (x86)\\Google\\chromedriver_win32\\chromedriver.exe"
     driver = webdriver.Chrome(
