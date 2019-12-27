@@ -20,6 +20,7 @@ Python libraries used for the single scripts:
 Python libraries used for HumanBenchmarkBot.py:
 * selenium
 * pynput
+* pywin32
 
 ## How to use
 
