@@ -4,6 +4,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
+import selenium.common.exceptions as seleniumexcept
 from ctypes import windll
 import pynput
 import sys
@@ -20,15 +21,16 @@ def handleUserInput(userInput, limit):
         printHelp(False)
     elif (len(userInput.split()) == 2 and userInput.split()[0] == "-limit"):
         limitInput = userInput.split()
-        if (limitInput[1].isdigit()):
+        if (limitInput[1].isdigit() and (int(limitInput[1]) > 0)):
             limit = int(limitInput[1])
+            print("> Changed limit to:", str(limit))
         else:
-            print("Invalid -limit argument:", limitInput[1])
+            print("> Invalid -limit argument:", limitInput[1])
     elif (userInput == "quit"):
-        print("Goodbye.")
+        print("> Goodbye.")
         sys.exit(0)
     elif (userInput == "close"):
-        print("Goodbye.")
+        print("> Goodbye.")
         driver.close()
         sys.exit(0)
     else:
@@ -55,8 +57,8 @@ def handleUserInput(userInput, limit):
             testButtons[5].click()
             handleTyping()
         else:
-            print("Unknown test: " + userInput)
-    handleUserInput(input("\nWhat next? (Type help for help)\n"), limit)
+            print("> Unknown test: " + userInput)
+    handleUserInput(input("\n> What next? (Type help for help)\n# "), limit)
 
 
 def printHelp(isLaunchArgument):
@@ -68,13 +70,13 @@ def printHelp(isLaunchArgument):
         print("To print this help: python %s -help" % sys.argv[0])
         print("Available tests:\n- number_memory\n- reaction_time\n- verbal_memory\n- visual_memory\n- hearing\n- typing")
     else:
-        print("Available commands:")
-        print("- 'quit' : Terminates this program")
-        print("- 'close' : Terminates this program and closes the browser")
-        print("- 'help' : Prints this help")
-        print("- '-limit x': Sets the limit to x")
-        print("- 'testname' : Starts the test \"testname\"")
-        print("Available tests:\n- number_memory\n- reaction_time\n- verbal_memory\n- visual_memory\n- hearing\n- typing")
+        print("> Available commands:")
+        print("\t- 'quit' : Terminates this program")
+        print("\t- 'close' : Terminates this program and closes the browser")
+        print("\t- 'help' : Prints this help")
+        print("\t- '-limit x': Sets the limit to x")
+        print("\t- 'testname' : Starts the test \"testname\"")
+        print("> Available tests:\n\t- number_memory\n\t- reaction_time\n\t- verbal_memory\n\t- visual_memory\n\t- hearing\n\t- typing")
 
 
 def handleNumberMemory(limit):
@@ -84,25 +86,25 @@ def handleNumberMemory(limit):
     startButton.click()
 
     for i in range(limit):
-        # wait for the number to be shown in order to save it
+        # save the current number
         number = driver.find_element_by_class_name("big-number").text
 
-        # get the input field, type in the number and press RETURN
+        # wait for and get the input field, type in the number and press RETURN
         inputFieldPresent = EC.presence_of_element_located(
             # look for a div element of class "test-group" which contains an input element with type "text"
             (By.XPATH, "//div[@class='test-group']//input[@type='text']"))
         try:
-            # wait for the input field to become available
+            # wait for the input field to become selectable,  with 'wait' as our max waiting time
             inputField = WebDriverWait(driver, wait).until(inputFieldPresent)
         except TimeoutException:
-            print("Timed out while waiting for input field.")
+            print("> Timed out while waiting for input field.")
             driver.close()
             sys.exit(-1)
         inputField.send_keys(number)
         inputField.send_keys(Keys.RETURN)
         nextButton = driver.find_element_by_class_name("hero-button")
         nextButton.click()
-        # the time the number is displayed increases for each digit added
+        # the time the number is displayed for increases for each digit added
         wait += 1
 
 
@@ -110,10 +112,11 @@ def handleReactionTime(limit):
     myMouse = pynput.mouse.Controller()
     dc = windll.user32.GetDC(0)
     gdi = windll.gdi32
+    # the center of the green / red window
     window = driver.find_element_by_css_selector(
         ".test-standard-inner.inner.anim-slide-fade-in")
     x = window.rect["x"] + (window.rect["width"] // 2)
-    y = window.rect["y"] + (window.rect["height"] // 2) + 200
+    y = window.rect["y"] + (window.rect["height"] // 2) + 100
     myMouse.position = (x, y)
     # need integers for gdi.GetPixel(x, y)
     x = int(round(x))
@@ -126,9 +129,15 @@ def handleReactionTime(limit):
         if (abs(gdi.GetPixel(dc, x, y) - 7002955) <= 500000 and num < limit):
             myMouse.click(pynput.mouse.Button.left, 1)
             num = num + 1
-            print(num)
+            # give the browser time to change the color of the window from green to blue, or else the bot might click twice
             time.sleep(0.1)
-            # don't click if this was the last run
+            try:
+                timeDisplay = driver.find_element_by_xpath(
+                    "/html/body/div/div/div[4]/div[1]/div/div[1]/h1/div")
+                print("> Took", timeDisplay.text)
+            except seleniumexcept.NoSuchElementException:
+                print("> Couldn't find time display, maybe the absolute XPath changed?")
+            # don't click next if this was the last run
             if (num != limit):
                 myMouse.click(pynput.mouse.Button.left, 1)
             else:
@@ -137,15 +146,15 @@ def handleReactionTime(limit):
 
 def handleVerbalMemory(limit):
     # get and click the start button
-    # don't look for the start button too early...
-    time.sleep(1)
+    # don't look for the start button before /tests/verbal-memory has loaded
+    time.sleep(2)
     # wait for the start button, as the site can take a second to load for this test
     startButtonPresent = EC.presence_of_element_located(
         (By.CLASS_NAME, "hero-button"))
     try:
         startButton = WebDriverWait(driver, 3).until(startButtonPresent)
     except TimeoutException:
-        print("Timed out while waiting for site to load.")
+        print("> Timed out while waiting for site to load.")
         driver.close()
         sys.exit(-1)
     startButton.click()
@@ -172,7 +181,7 @@ def handleVisualMemory(limit):
         try:
             activeSquares = WebDriverWait(driver, 3).until(whiteSquaresPresent)
         except TimeoutException:
-            print("Timed out while waiting for white squares to appear.")
+            print("> Timed out while waiting for white squares to appear.")
             driver.close()
             sys.exit(-1)
         time.sleep(1.5)
@@ -190,21 +199,21 @@ def handleHearing():
     time.sleep(0.25)
     driver.find_element_by_class_name("hero-button").click()
     driver.find_element_by_class_name("hero-button").click()
-    print("I can hear everything")
+    print("> I can hear everything")
 
 
 def handleTyping():
     time.sleep(0.5)
     textbox = driver.find_element_by_class_name("letters")
-    textbox.click()
     myKeyboard = pynput.keyboard.Controller()
     myMouse = pynput.mouse.Controller()
     coordinates = (textbox.rect["x"] + (textbox.rect["width"] / 2),
                    textbox.rect["y"] + (textbox.rect["height"] / 2) + 80)
     textList = []
+    # Each letter is a <div> element of class "incomplete"
     textElements = driver.find_elements_by_class_name("incomplete")
-    print("Starting to build string...")
-    # join all other letters to create a string to type
+    print("> Starting to build string...")
+    # join all letters to create a string to type
     # I have no idea why this takes so long
     for textElement in textElements:
         currentChar = textElement.text
@@ -212,27 +221,33 @@ def handleTyping():
             textList.append(" ")
         else:
             textList.append(currentChar)
+        # a simple way of displaying the progress for this loop, since it can take many seconds
+        print("> Completed %d / %d" %
+              (len(textList), len(textElements)), end='\r')
+        sys.stdout.flush()
     text = "".join(textList)
-    print("Typing...")
-    # pynput's type is more than 10 x faster than
+    # add a \n so the stdout flushes correctly for the next print()
+    print("")
+    print("> Typing...")
+    # pynput's type() is more than 10 x faster than
     # textbox.send_keys(text)
-    # but the textbox needs to be in focus for pynput
+    # but the textbox needs to be in focus for pynput, so click it
     myMouse.position = coordinates
     myMouse.click(pynput.mouse.Button.left, 1)
     myKeyboard.type(text)
 
 
-if (len(sys.argv) >= 2 and sys.argv[1] == "-help"):
+if (len(sys.argv) >= 2 and (sys.argv[1] == "-help" or sys.argv[1] == "help")):
     printHelp(True)
     sys.exit(0)
 else:
     # default limit, can be changed with launch option -limit
-    limit = 40
+    limit = 10
     if (len(sys.argv) == 4 and sys.argv[2] == "-limit"):
         if (sys.argv[3].isdigit()):
             limit = int(sys.argv[3])
         else:
-            print("Invalid -limit argument")
+            print("> Invalid -limit argument")
             sys.exit(-1)
     options = webdriver.ChromeOptions()
     # specify your Chrome browser location
@@ -249,7 +264,7 @@ else:
     driver = webdriver.Chrome(
         executable_path=chrome_driver_binary, options=options)
     if (len(sys.argv) > 1):
-        print("Starting test: " + sys.argv[1])
+        print("> Starting test: " + sys.argv[1])
         handleUserInput(sys.argv[1], limit)
     else:
         printHelp(False)
