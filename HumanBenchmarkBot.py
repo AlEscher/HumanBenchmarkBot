@@ -14,18 +14,22 @@ import time
 
 def handleUserInput(userInput, limit):
     """Handles all user input"""
-    if (userInput == "help"):
+    if (userInput is None):
+        driver.get("https://www.humanbenchmark.com/")
+    elif (userInput == "help"):
         printHelp(False)
-        handleUserInput(input("What next? (Type help for help)\n"), limit)
     elif (len(userInput.split()) == 2 and userInput.split()[0] == "-limit"):
         limitInput = userInput.split()
         if (limitInput[1].isdigit()):
             limit = int(limitInput[1])
         else:
             print("Invalid -limit argument:", limitInput[1])
-        handleUserInput(input("What next? (Type help for help)\n"), limit)
     elif (userInput == "quit"):
         print("Goodbye.")
+        sys.exit(0)
+    elif (userInput == "close"):
+        print("Goodbye.")
+        driver.close()
         sys.exit(0)
     else:
         driver.get("https://www.humanbenchmark.com/")
@@ -52,24 +56,24 @@ def handleUserInput(userInput, limit):
             handleTyping()
         else:
             print("Unknown test: " + userInput)
-            driver.close()
-            sys.exit(-1)
-        handleUserInput(input("What next? (Type help for help)\n"), limit)
+    handleUserInput(input("\nWhat next? (Type help for help)\n"), limit)
 
 
 def printHelp(isLaunchArgument):
-    """Prints a help for this script"""
-    if (isLaunchArgument == True):
+    """Prints a help for this script, depending on the way "help" was called"""
+    if (isLaunchArgument):
         print("Usage example: python %s typing" % (sys.argv[0]))
         print("Set an optional limit: %s verbal_memory -limit 100" %
               sys.argv[0])
         print("To print this help: python %s -help" % sys.argv[0])
         print("Available tests:\n- number_memory\n- reaction_time\n- verbal_memory\n- visual_memory\n- hearing\n- typing")
     else:
-        print("Write the test you want to start next")
-        print("Type help to print this help")
-        print("You can set a new limit with: -limit 100")
-        print("To exit the program, type quit")
+        print("Available commands:")
+        print("- 'quit' : Terminates this program")
+        print("- 'close' : Terminates this program and closes the browser")
+        print("- 'help' : Prints this help")
+        print("- '-limit x': Sets the limit to x")
+        print("- 'testname' : Starts the test \"testname\"")
         print("Available tests:\n- number_memory\n- reaction_time\n- verbal_memory\n- visual_memory\n- hearing\n- typing")
 
 
@@ -82,7 +86,6 @@ def handleNumberMemory(limit):
     for i in range(limit):
         # wait for the number to be shown in order to save it
         number = driver.find_element_by_class_name("big-number").text
-        print(number)
 
         # get the input field, type in the number and press RETURN
         inputFieldPresent = EC.presence_of_element_located(
@@ -219,11 +222,7 @@ def handleTyping():
     myKeyboard.type(text)
 
 
-if (len(sys.argv) == 1):
-    print("No test specified.")
-    printHelp(True)
-    sys.exit(0)
-elif (len(sys.argv) >= 2 and sys.argv[1] == "-help"):
+if (len(sys.argv) >= 2 and sys.argv[1] == "-help"):
     printHelp(True)
     sys.exit(0)
 else:
@@ -240,7 +239,7 @@ else:
     options.binary_location = "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe"
     options.add_argument("--start-maximized")
     # 'excludeSwitches' and 'enable-automation' disable the header "this browser is controlled by automated software"
-    # this makes a different for tests that rely on pixel coordinates, such as visual_memory
+    # this makes a difference for tests that rely on pixel coordinates, such as visual_memory
     # '--load-extension' disables the pop-up warning to disable extensions in developer mode, which can mess with
     # things such as 'send_keys()'
     options.add_experimental_option(
@@ -249,5 +248,9 @@ else:
     chrome_driver_binary = "C:\\Program Files (x86)\\Google\\chromedriver_win32\\chromedriver.exe"
     driver = webdriver.Chrome(
         executable_path=chrome_driver_binary, options=options)
-    print("Starting test: " + sys.argv[1])
-    handleUserInput(sys.argv[1], limit)
+    if (len(sys.argv) > 1):
+        print("Starting test: " + sys.argv[1])
+        handleUserInput(sys.argv[1], limit)
+    else:
+        printHelp(False)
+        handleUserInput(None, limit)
