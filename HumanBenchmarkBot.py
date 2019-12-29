@@ -13,7 +13,7 @@ import time
 # For the whole bot we access the elements on the webpage, making the use of Python redundant, but wth...
 
 
-def handleUserInput(userInput, limit):
+def handleUserInput(userInput, limit, fast):
     """Handles all user input"""
     if (userInput is None):
         driver.get("https://www.humanbenchmark.com/")
@@ -26,13 +26,23 @@ def handleUserInput(userInput, limit):
             print("> Changed limit to:", str(limit))
         else:
             print("> Invalid -limit argument:", limitInput[1])
+    elif (userInput == "fast"):
+        fast = True
+        print("> Changed to fast")
+    elif (userInput == "stable"):
+        fast = False
+        print("> Changed to stable")
     elif (userInput == "quit"):
         print("> Goodbye.")
         sys.exit(0)
     elif (userInput == "close"):
         print("> Goodbye.")
-        driver.close()
-        sys.exit(0)
+        try:
+            driver.close()
+            sys.exit(0)
+        # raised if the browser is already closed
+        except seleniumexcept.WebDriverException:
+            sys.exit(0)
     else:
         driver.get("https://www.humanbenchmark.com/")
         # 0 -> number_memory 1-> reaction_time 2-> verbal_memory 3-> visual_memory 4-> hearing -> 5-> typing
@@ -49,7 +59,10 @@ def handleUserInput(userInput, limit):
             handleVerbalMemory(limit)
         elif (userInput == "visual_memory"):
             testButtons[3].click()
-            handleVisualMemory(limit)
+            if (fast):
+                handleVisualMemoryFast(limit)
+            else:
+                handleVisualMemoryStable(limit)
         elif (userInput == "hearing"):
             testButtons[4].click()
             handleHearing()
@@ -58,7 +71,8 @@ def handleUserInput(userInput, limit):
             handleTyping()
         else:
             print("> Unknown test: " + userInput)
-    handleUserInput(input("\n> What next? (Type help for help)\n# "), limit)
+    handleUserInput(
+        input("\n> What next? (Type help for help)\n# "), limit, fast)
 
 
 def printHelp(isLaunchArgument):
@@ -75,8 +89,9 @@ def printHelp(isLaunchArgument):
         print("\t- 'close' : Terminates this program and closes the browser")
         print("\t- 'help' : Prints this help")
         print("\t- '-limit x': Sets the limit to x")
+        print("\t- 'fast' / 'stable' : Switch between fast and stable execution of the next test")
         print("\t- 'testname' : Starts the test \"testname\"")
-        print("> Available tests:\n\t- number_memory\n\t- reaction_time\n\t- verbal_memory\n\t- visual_memory\n\t- hearing\n\t- typing")
+        print("> Available tests:\n\t- number_memory\n\t- reaction_time\n\t- verbal_memory\n\t- visual_memory (fast / stable)\n\t- hearing\n\t- typing")
 
 
 def handleNumberMemory(limit):
@@ -146,10 +161,8 @@ def handleReactionTime(limit):
 
 def handleVerbalMemory(limit):
     # get and click the start button
-    # don't look for the start button before /tests/verbal-memory has loaded
-    time.sleep(2)
     # wait for the start button, as the site can take a second to load for this test
-    startButtonPresent = EC.presence_of_element_located(
+    startButtonPresent = EC.element_to_be_clickable(
         (By.CLASS_NAME, "hero-button"))
     try:
         startButton = WebDriverWait(driver, 3).until(startButtonPresent)
@@ -170,7 +183,49 @@ def handleVerbalMemory(limit):
             driver.find_elements_by_class_name("hero-button")[1].click()
 
 
-def handleVisualMemory(limit):
+def handleVisualMemoryStable(limit):
+    """More stable version of handleVisualMemory
+    The browser doesn't need to be maximised, scrolled to the top or even opened
+    for this version to work. Doesn't grab your mouse"""
+    startButtonPresent = EC.element_to_be_clickable(
+        (By.CLASS_NAME, "hero-button"))
+    try:
+        startButton = WebDriverWait(driver, 3).until(startButtonPresent)
+    except TimeoutException:
+        print("> Timed out while waiting for site to load.")
+        driver.close()
+        sys.exit(-1)
+    startButton.click()
+    myMouse = pynput.mouse.Controller()
+    for i in range(limit):
+        whiteSquaresPresent = EC.presence_of_all_elements_located(
+            (By.CSS_SELECTOR, ".square.active"))
+        try:
+            whiteSquares = WebDriverWait(driver, 3).until(whiteSquaresPresent)
+        except TimeoutException:
+            print("> Timed out while waiting for white squares to appear.")
+            driver.close()
+            sys.exit(-1)
+        time.sleep(1.5)
+        # this sample will only contain blue squares
+        allSquares = driver.find_elements_by_class_name("square")
+        # look through current squares and see if any of them where white by comparing their coordinates
+        indexWhiteSquares = 0
+        for square in allSquares:
+            if (indexWhiteSquares == len(whiteSquares)):
+                break
+            elif (square.rect["x"] == whiteSquares[indexWhiteSquares].rect["x"] and square.rect["y"] == whiteSquares[indexWhiteSquares].rect["y"]):
+                square.click()
+                indexWhiteSquares += 1
+        time.sleep(1)
+
+
+def handleVisualMemoryFast(limit):
+    """Faster than handleVisualMemory but uses pynput to click,
+    which means that it is less stable since the white squares can't be obstructed
+    by any other window, the browser has to be maximized and the vertical offset
+    for the coordinate might not work on different screen resolutions.
+    More 'aggressive' since it grabs your mouse"""
     time.sleep(0.5)
     startButton = driver.find_element_by_class_name("hero-button")
     startButton.click()
@@ -186,9 +241,10 @@ def handleVisualMemory(limit):
             sys.exit(-1)
         time.sleep(1.5)
         # iterate through all white squares and click on their location
+        verticalOffset = 80
         for square in activeSquares:
             coordinates = (square.rect["x"] + (square.rect["width"] / 2),
-                           square.rect["y"] + (square.rect["height"] / 2) + 80)
+                           square.rect["y"] + (square.rect["height"] / 2) + verticalOffset)
             myMouse.position = coordinates
             myMouse.click(pynput.mouse.Button.left, 1)
         time.sleep(1)
@@ -243,7 +299,10 @@ if (len(sys.argv) >= 2 and (sys.argv[1] == "-help" or sys.argv[1] == "help")):
 else:
     # default limit, can be changed with launch option -limit
     limit = 10
-    if (len(sys.argv) == 4 and sys.argv[2] == "-limit"):
+    # wether the faster or stabler version of a test should be executed,
+    # fast by default, can be set to stable by adding "stable" as last launch argument
+    fast = True
+    if (len(sys.argv) >= 4 and sys.argv[2] == "-limit"):
         if (sys.argv[3].isdigit()):
             limit = int(sys.argv[3])
         else:
@@ -265,7 +324,10 @@ else:
         executable_path=chrome_driver_binary, options=options)
     if (len(sys.argv) > 1):
         print("> Starting test: " + sys.argv[1])
-        handleUserInput(sys.argv[1], limit)
+        # check if 'safe' parameter is set
+        if ((len(sys.argv) >= 3 and sys.argv[2] == "stable") or (len(sys.argv) == 5 and sys.argv[4] == "stable")):
+            fast = False
+        handleUserInput(sys.argv[1], limit, fast)
     else:
         printHelp(False)
-        handleUserInput(None, limit)
+        handleUserInput(None, limit, fast)
