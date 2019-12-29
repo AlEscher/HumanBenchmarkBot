@@ -29,7 +29,7 @@ If you use the BenchmarkBot, you will only need Chrome and a chromedriver
 * `pip install` the needed libraries
 * You will need a Chrome Browser and the according [chromedriver](https://sites.google.com/a/chromium.org/chromedriver/) for your Browser version
 * You may need to adjust [the path](https://github.com/AlEscher/HumanBenchmarkBot/blob/master/HumanBenchmarkBot.py#L322) to your chromedriver / chrome executable
-* That's it, do `python HumanBenchmarkBot.py -help` for further instructions
+* That's it start the Bot with `python HumanBenchmarkBot.py` for further instructions
 
 ### How to use a single script
 * Clone this repository or download a single script you want to use
