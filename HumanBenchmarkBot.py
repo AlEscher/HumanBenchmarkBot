@@ -93,7 +93,7 @@ def printHelp(isLaunchArgument):
         print("\t- '-limit x': Sets the limit to x")
         print("\t- 'fast' / 'stable' : Switch between fast and stable execution of the next tests")
         print("\t- 'testname' : Starts the test \"testname\"")
-        print("> Available tests:\n\t- number_memory\n\t- reaction_time\n\t- verbal_memory\n\t- visual_memory (fast / stable)\n\t- hearing\n\t- typing")
+        print("> Available tests:\n\t- number_memory\n\t- reaction_time (fast / stable)\n\t- verbal_memory\n\t- visual_memory (fast / stable)\n\t- hearing\n\t- typing (fast / stable)")
 
 
 def handleNumberMemory(limit):
@@ -124,6 +124,8 @@ def handleNumberMemory(limit):
         nextButton.click()
         # the time the number is displayed for increases for each digit added
         wait += 1
+    # clear stdout
+    print("")
 
 
 def handleReactionTimeFast(limit):
@@ -205,10 +207,9 @@ def handleVerbalMemory(limit):
     startButtonPresent = EC.element_to_be_clickable(
         (By.CLASS_NAME, "hero-button"))
     try:
-        startButton = WebDriverWait(driver, 3).until(startButtonPresent)
+        startButton = WebDriverWait(driver, 6).until(startButtonPresent)
     except TimeoutException:
         print("> Timed out while waiting for site to load.")
-        driver.close()
         sys.exit(-1)
     startButton.click()
     alreadySeen = []
@@ -223,6 +224,8 @@ def handleVerbalMemory(limit):
         else:
             alreadySeen.append(currentWord)
             driver.find_elements_by_class_name("hero-button")[1].click()
+    # clear stdout
+    print("")
 
 
 def handleVisualMemory(limit, fast):
@@ -234,10 +237,9 @@ def handleVisualMemory(limit, fast):
     startButtonPresent = EC.element_to_be_clickable(
         (By.CLASS_NAME, "hero-button"))
     try:
-        startButton = WebDriverWait(driver, 3).until(startButtonPresent)
+        startButton = WebDriverWait(driver, 6).until(startButtonPresent)
     except TimeoutException:
         print("> Timed out while waiting for site to load.")
-        driver.close()
         sys.exit(-1)
     startButton.click()
     myMouse = pynput.mouse.Controller()
@@ -251,7 +253,6 @@ def handleVisualMemory(limit, fast):
             whiteSquares = WebDriverWait(driver, 3).until(whiteSquaresPresent)
         except TimeoutException:
             print("> Timed out while waiting for white squares to appear.")
-            driver.close()
             sys.exit(-1)
         time.sleep(1.5)
         # iterate through all white squares and click on their location
@@ -274,6 +275,8 @@ def handleVisualMemory(limit, fast):
                     square.click()
                     indexWhiteSquares += 1
         time.sleep(1)
+    # clear stdout
+    print("")
 
 
 # the most challenging test of all
@@ -324,12 +327,13 @@ def handleTyping(fast):
     resultPresent = EC.presence_of_element_located(
         (By.XPATH, "/html/body/div/div/div[4]/div[1]/div/div[1]/h1"))
     try:
-        wpm = WebDriverWait(driver, 3).until(resultPresent).text
+        wpm = WebDriverWait(driver, 5).until(resultPresent)
         accuracy = driver.find_element_by_xpath(
             "/html/body/div/div/div[4]/div[1]/div/div[1]/p").text
     except:
-        print("> Timed out while waiting for results")
-    print("Finished with: %s and %s" % (wpm, accuracy))
+        print("> There was a problem getting the results")
+        return
+    print("> Finished with: %s and %s" % (wpm.text, accuracy))
 
 
 if (len(sys.argv) >= 2 and (sys.argv[1] == "-help" or sys.argv[1] == "help")):
@@ -348,8 +352,6 @@ else:
             print("> Invalid -limit argument")
             sys.exit(-1)
     options = webdriver.ChromeOptions()
-    # specify your Chrome browser location
-    options.binary_location = "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe"
     options.add_argument("--start-maximized")
     # 'excludeSwitches' and 'enable-automation' disable the header "this browser is controlled by automated software"
     # this makes a difference for tests that rely on pixel coordinates, such as visual_memory
@@ -359,6 +361,8 @@ else:
         "excludeSwitches", ['enable-automation', '--load-extension'])
     # specify your chromedriver path
     chrome_driver_binary = "C:\\Program Files (x86)\\Google\\chromedriver_win32\\chromedriver.exe"
+    # specify your Chrome browser location
+    options.binary_location = "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe"
     driver = webdriver.Chrome(
         executable_path=chrome_driver_binary, options=options)
     if (len(sys.argv) > 1):
