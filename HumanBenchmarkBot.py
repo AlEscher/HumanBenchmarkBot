@@ -307,8 +307,8 @@ def handleTyping(fast):
         else:
             textList.append(currentChar)
         # a simple way of displaying the progress for this loop, since it can take many seconds
-        print("> Completed %d / %d" %
-              (len(textList), len(textElements)), end='\r')
+        print("> Completed %d%%" %
+              int((len(textList) / len(textElements)) * 100), end='\r')
         sys.stdout.flush()
     text = "".join(textList)
     # add a \n so the stdout flushes correctly for the next print()
