@@ -327,13 +327,13 @@ def handleTyping(fast):
     resultPresent = EC.presence_of_element_located(
         (By.XPATH, "/html/body/div/div/div[4]/div[1]/div/div[1]/h1"))
     try:
-        wpm = WebDriverWait(driver, 5).until(resultPresent)
+        wpm = WebDriverWait(driver, 5).until(resultPresent).text
         accuracy = driver.find_element_by_xpath(
             "/html/body/div/div/div[4]/div[1]/div/div[1]/p").text
     except:
         print("> There was a problem getting the results")
         return
-    print("> Finished with: %s and %s" % (wpm.text, accuracy))
+    print("> Finished with: %s and %s" % (wpm, accuracy))
 
 
 if (len(sys.argv) >= 2 and (sys.argv[1] == "-help" or sys.argv[1] == "help")):
