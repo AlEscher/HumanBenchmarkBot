@@ -7,16 +7,16 @@ A python bot meant to ace the tests presented at [HumanBenchmark](https://www.hu
 ### Python
 I'm using Python 3.7.2 on Windows 10
 
+Python libraries used for HumanBenchmarkBot.py:
+* selenium
+* pynput
+* pywin32
+
 Python libraries used for the single scripts:
 * pytesseract
 * pywin32
 * pynput
 * pillow
-
-Python libraries used for HumanBenchmarkBot.py:
-* selenium
-* pynput
-* pywin32
 
 ### Tesseract OCR
 Most **single scripts** use [Tesseract OCR](https://github.com/tesseract-ocr/tesseract) in order to recognize the text on the website. [Here](https://digi.bib.uni-mannheim.de/tesseract/tesseract-ocr-w64-setup-v4.1.0-bibtag19.exe) is an installer for Windows.
