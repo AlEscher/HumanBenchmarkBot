@@ -28,6 +28,8 @@ if (image is not None):
     text = pytesseract.image_to_string(image, lang='eng')
     # tesseract sometimes mistakenly reads "I" as "|"
     text = text.replace("\n", " ").replace("|", "I")
+    if (text[len(text) - 1] == " "):
+        text[len(text) - 1] = "."
     # click on text feld to focus it
     myMouse.click(pynput.mouse.Button.left, 1)
 

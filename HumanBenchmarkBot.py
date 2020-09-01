@@ -44,31 +44,36 @@ def handleUserInput(userInput, limit, fast):
         except seleniumexcept.WebDriverException:
             sys.exit(0)
     else:
-        driver.get("https://www.humanbenchmark.com/")
-        # 0 -> number_memory 1-> reaction_time 2-> verbal_memory 3-> visual_memory 4-> hearing -> 5-> typing
-        testButtons = driver.find_elements_by_class_name("card")
+        url = "https://www.humanbenchmark.com/"
+        driver.get(url)
 
         if (userInput == "number_memory"):
-            testButtons[0].click()
+            driver.get(url + "/tests/number-memory")
             handleNumberMemory(limit)
         elif(userInput == "reaction_time"):
-            testButtons[1].click()
+            driver.get(url + "/tests/reactiontime")
             if (fast):
                 handleReactionTimeFast(limit)
             else:
                 handleReactionTimeStable(limit)
         elif (userInput == "verbal_memory"):
-            testButtons[2].click()
+            driver.get(url + "/tests/verbal-memory")
             handleVerbalMemory(limit)
         elif (userInput == "visual_memory"):
-            testButtons[3].click()
+            driver.get(url + "/tests/memory")
             handleVisualMemory(limit, fast)
         elif (userInput == "hearing"):
-            testButtons[4].click()
+            driver.get(url + "/tests/hearing")
             handleHearing()
         elif (userInput == "typing"):
-            testButtons[5].click()
+            driver.get(url + "/tests/typing")
             handleTyping(fast)
+        elif (userInput == "aim_trainer"):
+            driver.get(url + "/tests/aim")
+            handleAimTest()
+        elif (userInput == "chimp"):
+            driver.get(url + "/tests/chimp")
+            handleChimpTest(limit)
         else:
             print("> Unknown test: " + userInput)
     handleUserInput(
@@ -84,7 +89,7 @@ def printHelp(isLaunchArgument):
         print(
             "> Start the stable version: %s visual_memory -limit 40 stable" % sys.argv[0])
         print("> To print this help: python %s -help" % sys.argv[0])
-        print("> Available tests:\n\t- number_memory\n\t- reaction_time\n\t- verbal_memory\n\t- visual_memory\n\t- hearing\n\t- typing")
+        print("> Available tests:\n\t- number_memory\n\t- reaction_time\n\t- verbal_memory\n\t- visual_memory\n\t- hearing\n\t- typing\n\t- aim_trainer\n\t- chimp")
     else:
         print("> Available commands:")
         print("\t- 'quit' : Terminates this program")
@@ -93,13 +98,13 @@ def printHelp(isLaunchArgument):
         print("\t- '-limit x': Sets the limit to x")
         print("\t- 'fast' / 'stable' : Switch between fast and stable execution of the next tests")
         print("\t- 'testname' : Starts the test \"testname\"")
-        print("> Available tests:\n\t- number_memory\n\t- reaction_time (fast / stable)\n\t- verbal_memory\n\t- visual_memory (fast / stable)\n\t- hearing\n\t- typing (fast / stable)")
+        print("> Available tests:\n\t- number_memory\n\t- reaction_time (fast / stable)\n\t- verbal_memory\n\t- visual_memory (fast / stable)\n\t- hearing\n\t- typing (fast / stable)\n\t- aim_trainer\n\t- chimp")
 
 
 def handleNumberMemory(limit):
     wait = 3
     # get and click the start button
-    startButton = driver.find_element_by_class_name("hero-button")
+    startButton = driver.find_element_by_xpath("//button[text()='Start']")
     startButton.click()
 
     for i in range(limit):
@@ -110,8 +115,8 @@ def handleNumberMemory(limit):
 
         # wait for and get the input field, type in the number and press RETURN
         inputFieldPresent = EC.presence_of_element_located(
-            # look for a div element of class "test-group" which contains an input element with type "text"
-            (By.XPATH, "//div[@class='test-group']//input[@type='text']"))
+            # look for an input element with type "text" that only allows numbers
+            (By.XPATH, "//input[@type='text' and @pattern='[0-9]*']"))
         try:
             # wait for the input field to become selectable,  with 'wait' as our max waiting time
             inputField = WebDriverWait(driver, wait).until(inputFieldPresent)
@@ -120,7 +125,7 @@ def handleNumberMemory(limit):
             sys.exit(-1)
         inputField.send_keys(number)
         inputField.send_keys(Keys.RETURN)
-        nextButton = driver.find_element_by_class_name("hero-button")
+        nextButton = driver.find_element_by_xpath("//button[text()='NEXT']")
         nextButton.click()
         # the time the number is displayed for increases for each digit added
         wait += 1
@@ -136,10 +141,10 @@ def handleReactionTimeFast(limit):
     dc = windll.user32.GetDC(0)
     gdi = windll.gdi32
     # the center of the green / red window
-    window = driver.find_element_by_css_selector(
-        ".test-standard-inner.inner.anim-slide-fade-in")
+    window = driver.find_element_by_xpath(
+        "//div[@class='css-42wpoy e19owgy79']")
     x = window.rect["x"] + (window.rect["width"] // 2)
-    y = window.rect["y"] + (window.rect["height"] // 2) + 100
+    y = window.rect["y"] + (window.rect["height"] // 2) + 160
     myMouse.position = (x, y)
     # need integers for gdi.GetPixel(x, y)
     x = int(round(x))
@@ -156,21 +161,21 @@ def handleReactionTimeFast(limit):
             time.sleep(0.1)
             try:
                 timeDisplay = driver.find_element_by_xpath(
-                    "/html/body/div/div/div[4]/div[1]/div/div[1]/h1/div")
+                    "//div[@class='css-1qvtbrk e19owgy78']/h1/div")
                 print("> Took", timeDisplay.text)
             except seleniumexcept.NoSuchElementException:
                 print("> Couldn't find time display, maybe the absolute XPath changed?")
             # don't click next if this was the last run
-            if (num != limit):
+            if (num < limit):
                 myMouse.click(pynput.mouse.Button.left, 1)
             else:
-                break
+                return
 
 
 def handleReactionTimeStable(limit):
     """More stable but not recommended, since it's slower than most humans..."""
     startScreenPresent = EC.presence_of_element_located(
-        (By.CSS_SELECTOR, ".test-standard.reaction-time-test.view-splash"))
+        (By.XPATH, "//div[@class='css-42wpoy e19owgy79']"))
     try:
         WebDriverWait(driver, 3).until(startScreenPresent).click()
     except TimeoutException:
@@ -179,7 +184,7 @@ def handleReactionTimeStable(limit):
 
     for i in range(limit):
         greenPanelPresent = EC.presence_of_element_located(
-            (By.CSS_SELECTOR, ".test-standard.reaction-time-test.view-go"))
+            (By.XPATH, "//div[text()='Wait for green']"))
         # wait until screen becomes green
         try:
             WebDriverWait(driver, 15).until(greenPanelPresent).click()
@@ -188,24 +193,25 @@ def handleReactionTimeStable(limit):
             sys.exit(-1)
         time.sleep(0.1)
         try:
-            timeDisplay = driver.find_element_by_xpath(
-                "/html/body/div/div/div[4]/div[1]/div/div[1]/h1/div")
+            timeDisplay = driver.find_element_by_xpath("//div[@class='css-1qvtbrk e19owgy78']/h1/div")
             print("> Took", timeDisplay.text)
         except seleniumexcept.NoSuchElementException:
             print("> Couldn't find time display, maybe the absolute XPath changed?")
         # don't click next if this was the last run
-        if (i != limit - 1):
-            driver.find_element_by_css_selector(
-                ".test-standard.reaction-time-test.view-result").click()
-        else:
-            break
+        try:
+            if (i != limit - 1):
+                driver.find_element_by_xpath("//h2[text()='Click to keep going']").click()
+            else:
+                break
+        except seleniumexcept.NoSuchElementException:
+            print("Couldn't continue with the test")
 
 
 def handleVerbalMemory(limit):
     # get and click the start button
     # wait for the start button, as the site can take a second to load for this test
     startButtonPresent = EC.element_to_be_clickable(
-        (By.CLASS_NAME, "hero-button"))
+        (By.XPATH, "//button[text()='Start']"))
     try:
         startButton = WebDriverWait(driver, 6).until(startButtonPresent)
     except TimeoutException:
@@ -220,10 +226,10 @@ def handleVerbalMemory(limit):
         sys.stdout.flush()
         currentWord = driver.find_element_by_class_name("word").text
         if (alreadySeen.count(currentWord) > 0):
-            driver.find_elements_by_class_name("hero-button")[0].click()
+            driver.find_element_by_xpath("//button[text()='SEEN']").click()
         else:
             alreadySeen.append(currentWord)
-            driver.find_elements_by_class_name("hero-button")[1].click()
+            driver.find_element_by_xpath("//button[text()='NEW']").click()
     # clear stdout
     print("")
 
@@ -235,7 +241,7 @@ def handleVisualMemory(limit, fast):
     for the coordinate might not work on different screen resolutions.
     More 'aggressive' since it grabs your mouse"""
     startButtonPresent = EC.element_to_be_clickable(
-        (By.CLASS_NAME, "hero-button"))
+        (By.XPATH, "//button[text()='Start']"))
     try:
         startButton = WebDriverWait(driver, 6).until(startButtonPresent)
     except TimeoutException:
@@ -282,8 +288,8 @@ def handleVisualMemory(limit, fast):
 # the most challenging test of all
 def handleHearing():
     time.sleep(0.25)
-    driver.find_element_by_class_name("hero-button").click()
-    driver.find_element_by_class_name("hero-button").click()
+    driver.find_element_by_xpath("//button[text()='Start']").click()
+    driver.find_element_by_xpath("//button[text()='I hear the sound']").click()
     print("> I can hear everything")
 
 
@@ -325,15 +331,36 @@ def handleTyping(fast):
         textbox.send_keys(text)
 
     resultPresent = EC.presence_of_element_located(
-        (By.XPATH, "/html/body/div/div/div[4]/div[1]/div/div[1]/h1"))
+        (By.XPATH, "//h1[@class='css-0']"))
     try:
         wpm = WebDriverWait(driver, 5).until(resultPresent).text
-        accuracy = driver.find_element_by_xpath(
-            "/html/body/div/div/div[4]/div[1]/div/div[1]/p").text
+        # accuracy = driver.find_element_by_xpath("/html/body/div/div/div[4]/div[1]/div/div[1]/p").text
     except:
         print("> There was a problem getting the results")
         return
-    print("> Finished with: %s and %s" % (wpm, accuracy))
+    print("> Finished with: %s" % (wpm))
+
+
+def handleAimTest():
+    targetPresent = EC.element_to_be_clickable(
+        (By.XPATH, "//div[@data-aim-target='true']/div[@style='width: 100px; height: 2px;']"))
+    try:
+        target = WebDriverWait(driver, 6).until(targetPresent)
+        target.click()
+    except TimeoutException:
+        print("> Timed out while waiting for site to load.")
+        sys.exit(-1)
+
+    for i in range(30):
+        try:
+            WebDriverWait(driver, 6).until(targetPresent).click()
+        except:
+            print("Failed to aim at target")
+
+
+def handleChimpTest(limit):
+    startButton = driver.find_element_by_xpath("//button[text()='Start Test']")
+    startButton.click()
 
 
 if (len(sys.argv) >= 2 and (sys.argv[1] == "-help" or sys.argv[1] == "help")):
