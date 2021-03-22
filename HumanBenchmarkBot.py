@@ -1,12 +1,24 @@
-from selenium import webdriver
-from selenium.common.exceptions import TimeoutException
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.common.by import By
-from selenium.webdriver.common.keys import Keys
-import selenium.common.exceptions as seleniumexcept
+try:
+    from selenium import webdriver
+    from selenium.common.exceptions import TimeoutException
+    from selenium.webdriver.support.ui import WebDriverWait
+    from selenium.webdriver.support import expected_conditions as EC
+    from selenium.webdriver.common.by import By
+    from selenium.webdriver.common.keys import Keys
+    import selenium.common.exceptions as seleniumexcept
+except ImportError:
+    print("Missing selenium module")
+    print("Please install it, e.g. 'pip install selenium'")
+    exit(1)
+
+try:
+    import pynput
+except ImportError:
+    print("Missing pnyput module")
+    print("Please intall it, e.g. 'pip install pnyput'")
+    exit(1)
+
 from ctypes import windll
-import pynput
 import sys
 import time
 
@@ -387,11 +399,16 @@ else:
     options.add_experimental_option(
         "excludeSwitches", ['enable-automation', '--load-extension'])
     # specify your chromedriver path
-    chrome_driver_binary = "C:\\Program Files (x86)\\Google\\chromedriver_win32\\chromedriver.exe"
+    chrome_driver_binary = "C:\\Program Files\\Google\\chromedriver_win32\\chromedriver.exe"
     # specify your Chrome browser location
-    options.binary_location = "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe"
-    driver = webdriver.Chrome(
-        executable_path=chrome_driver_binary, options=options)
+    options.binary_location = "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe"
+    try:
+        driver = webdriver.Chrome(executable_path=chrome_driver_binary, options=options)
+    except seleniumexcept.WebDriverException:
+        print("Failed to locate chrome.exe or the chromedriver")
+        print("Please specify the correct path, as described in https://github.com/AlEscher/HumanBenchmarkBot#how-to-use-the-bot-recommended")
+        exit(1)
+
     if (len(sys.argv) > 1):
         print("> Starting test: " + sys.argv[1])
         # check if 'safe' parameter is set
