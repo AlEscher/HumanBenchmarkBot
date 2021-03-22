@@ -25,10 +25,10 @@ If you use the BenchmarkBot, you will only need Chrome and a chromedriver
 ## How to use
 
 ### How to use the Bot (Recommended)
-* Clone this repository or just download [HumanBenchmarkBot.py](https://github.com/AlEscher/HumanBenchmarkBot/blob/master/HumanBenchmarkBot.py)
+* Clone this repository or just download [HumanBenchmarkBot.py](HumanBenchmarkBot.py)
 * `pip install` the needed libraries
 * You will need a Chrome Browser and the according [chromedriver](https://sites.google.com/a/chromium.org/chromedriver/) for your Browser version
-* You may need to adjust [the path](https://github.com/AlEscher/HumanBenchmarkBot/blob/master/HumanBenchmarkBot.py#L362-L365) to your chromedriver / chrome executable
+* You may need to adjust [the path](HumanBenchmarkBot.py#L389-L392) to your chromedriver / chrome executable
 * That's it start the Bot with `python HumanBenchmarkBot.py` for further instructions
 
 ### How to use a single script
@@ -42,10 +42,10 @@ If you use the BenchmarkBot, you will only need Chrome and a chromedriver
 ## Previews
 
 ### Typing Test
-![Typing Gif](https://github.com/AlEscher/HumanBenchmarkBot/blob/master/Previews/typing.gif)
+![Typing Gif](Previews/typing.gif)
 ### Reaction Test
-![Reaction Gif](https://github.com/AlEscher/HumanBenchmarkBot/blob/master/Previews/reaction_test.gif)
+![Reaction Gif](Previews/reaction_test.gif)
 ### Verbal Memory Test
-![Verbal Memory Gif](https://github.com/AlEscher/HumanBenchmarkBot/blob/master/Previews/verbal_memory.gif)
+![Verbal Memory Gif](Previews/verbal_memory.gif)
 ### Visual Memory Test
-![Visual Memory Gif](https://github.com/AlEscher/HumanBenchmarkBot/blob/master/Previews/visual_memory.gif)
+![Visual Memory Gif](Previews/visual_memory.gif)
