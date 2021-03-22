@@ -65,18 +65,15 @@ def handleUserInput(userInput, limit, fast):
         elif(userInput == "reaction_time"):
             driver.get(url + "/tests/reactiontime")
             if (fast):
-                handleReactionTimeFast(limit)
+                handleReactionTimeFast()
             else:
-                handleReactionTimeStable(limit)
+                handleReactionTimeStable()
         elif (userInput == "verbal_memory"):
             driver.get(url + "/tests/verbal-memory")
             handleVerbalMemory(limit)
         elif (userInput == "visual_memory"):
             driver.get(url + "/tests/memory")
             handleVisualMemory(limit, fast)
-        elif (userInput == "hearing"):
-            driver.get(url + "/tests/hearing")
-            handleHearing()
         elif (userInput == "typing"):
             driver.get(url + "/tests/typing")
             handleTyping(fast)
@@ -110,7 +107,7 @@ def printHelp(isLaunchArgument):
         print("\t- '-limit x': Sets the limit to x")
         print("\t- 'fast' / 'stable' : Switch between fast and stable execution of the next tests")
         print("\t- 'testname' : Starts the test \"testname\"")
-        print("> Available tests:\n\t- number_memory\n\t- reaction_time (fast / stable)\n\t- verbal_memory\n\t- visual_memory (fast / stable)\n\t- hearing\n\t- typing (fast / stable)\n\t- aim_trainer\n\t- chimp")
+        print("> Available tests:\n\t- number_memory\n\t- reaction_time (fast / stable)\n\t- verbal_memory\n\t- visual_memory (fast / stable)\n\t- typing (fast / stable)\n\t- aim_trainer\n\t- chimp")
 
 
 def handleNumberMemory(limit):
@@ -145,13 +142,14 @@ def handleNumberMemory(limit):
     print("")
 
 
-def handleReactionTimeFast(limit):
+def handleReactionTimeFast():
     """This version is faster, but requires a specific pixel on your screen to be monitored constantly,
     which means your browser has to be maximised and you need to be scrolled to the top.
     This method grabs your mouse to click"""
     myMouse = pynput.mouse.Controller()
     dc = windll.user32.GetDC(0)
     gdi = windll.gdi32
+    limit = 5
     # the center of the green / red window
     window = driver.find_element_by_xpath(
         "//div[@class='css-42wpoy e19owgy79']")
@@ -184,7 +182,7 @@ def handleReactionTimeFast(limit):
                 return
 
 
-def handleReactionTimeStable(limit):
+def handleReactionTimeStable():
     """More stable but not recommended, since it's slower than most humans..."""
     startScreenPresent = EC.presence_of_element_located(
         (By.XPATH, "//div[@class='css-42wpoy e19owgy79']"))
@@ -194,6 +192,7 @@ def handleReactionTimeStable(limit):
         print("> Timed out while waiting for the start screen...")
         sys.exit(-1)
 
+    limit = 5
     for i in range(limit):
         greenPanelPresent = EC.presence_of_element_located(
             (By.XPATH, "//div[text()='Wait for green']"))
@@ -202,7 +201,7 @@ def handleReactionTimeStable(limit):
             WebDriverWait(driver, 15).until(greenPanelPresent).click()
         except TimeoutException:
             print("> Green panel took too long to appear...")
-            sys.exit(-1)
+            return
         time.sleep(0.1)
         try:
             timeDisplay = driver.find_element_by_xpath("//div[@class='css-1qvtbrk e19owgy78']/h1/div")
@@ -216,7 +215,7 @@ def handleReactionTimeStable(limit):
             else:
                 break
         except seleniumexcept.NoSuchElementException:
-            print("Couldn't continue with the test")
+            print("> Couldn't continue with the test")
 
 
 def handleVerbalMemory(limit):
@@ -295,14 +294,6 @@ def handleVisualMemory(limit, fast):
         time.sleep(1)
     # clear stdout
     print("")
-
-
-# the most challenging test of all
-def handleHearing():
-    time.sleep(0.25)
-    driver.find_element_by_xpath("//button[text()='Start']").click()
-    driver.find_element_by_xpath("//button[text()='I hear the sound']").click()
-    print("> I can hear everything")
 
 
 def handleTyping(fast):
